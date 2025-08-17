@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% extends "base.html" %}
+    {% block title %}Dashboard - VisionSage{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="mt-8 text-3xl font-bold text-[#FFD166]"><i class="fas fa-hand-holding-heart icon-ease"></i> Dashboard</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="{{ category }} neumorphic">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <div class="flex justify-between items-center mb-6">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <button class="btn btn-info" onclick="refreshStats()">
+                <i class="fas fa-sync-alt"></i> Refresh Stats
+            </button>
+        </div>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+            <div class="neumorphic p-6 text-center">
+                <h3 class="text-lg font-semibold text-[#FFD166]"><i class="fas fa-robot icon-ai"></i> Images Uploaded</h3>
+                <p class="text-2xl font-bold text-[#E4E6EB]">{{ stats.images }}</p>
+            </div>
+            <div class="neumorphic p-6 text-center">
+                <h3 class="text-lg font-semibold text-[#FFD166]"><i class="fas fa-folder"></i> Cases Created</h3>
+                <p class="text-2xl font-bold text-[#E4E6EB]">{{ stats.cases }}</p>
+            </div>
+            <div class="neumorphic p-6 text-center">
+                <h3 class="text-lg font-semibold text-[#FFD166]"><i class="fas fa-shield-alt icon-security"></i> Harmful Objects</h3>
+                <p class="text-2xl font-bold text-[#E4E6EB]">{{ stats.harmful }}</p>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="statsChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Images Uploaded', 'Cases Created', 'Harmful Objects Detected'],
+                datasets: [{
+                    label: 'User Activity',
+                    data: [{{ stats.images }}, {{ stats.cases }}, {{ stats.harmful }}],
+                    backgroundColor: ['#FF6F61', '#2A9D8F', '#FFD166'],
+                    borderColor: ['#FF6F61', '#2A9D8F', '#FFD166'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count',
+                            color: '#E4E6EB',
+                            font: { size: 14 }
+                        },
+                        ticks: { color: '#B0B3B8' }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Metrics',
+                            color: '#E4E6EB',
+                            font: { size: 14 }
+                        },
+                        ticks: { color: '#B0B3B8' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { color: '#E4E6EB' }
+                    },
+                    tooltip: {
+                        backgroundColor: '#2C3E50',
+                        titleColor: '#E4E6EB',
+                        bodyColor: '#B0B3B8'
+                    }
+                }
+            }
+        });
+
+        function refreshStats() {
+            window.location.reload();
+            // Placeholder for future dynamic stats refresh
+        }
+    </script>
+    {% endblock %}
+</body>
+</html>

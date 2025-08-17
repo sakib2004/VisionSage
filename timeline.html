@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% extends "base.html" %}
+    {% block title %}Case Timeline - VisionSage{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="mt-8 text-3xl font-bold text-[#FFD166]"><i class="fas fa-shield-alt icon-security"></i> Timeline for {{ case_name }}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="{{ category }} neumorphic">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <div class="flex justify-between items-center mb-6">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <button class="btn btn-info" onclick="exportTimeline()">
+                <i class="fas fa-download"></i> Export Timeline
+            </button>
+        </div>
+        <div class="chart-container">
+            <canvas id="timelineChart" width="400" height="200"></canvas>
+        </div>
+        {% if events %}
+            <h3 class="text-xl font-semibold mt-8 mb-4 text-[#FFD166]"><i class="fas fa-robot icon-ai"></i> Case Events</h3>
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {% for event in events %}
+                    <div class="neumorphic p-6 flex flex-col gap-4">
+                        <img src="{{ url_for('uploaded_file', filename=event.file_path | basename) }}" alt="Event Image" class="w-24 h-24 object-cover rounded-lg">
+                        <div>
+                            <p class="font-semibold text-[#E4E6EB]">{{ event.timestamp }}</p>
+                            <p class="text-[#B0B3B8]">{{ event.description }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-[#B0B3B8]">No events found for this case.</p>
+        {% endif %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const events = [
+            {% for event in events %}
+                {
+                    timestamp: '{{ event.timestamp | safe }}',
+                    description: '{{ event.description | safe }}'
+                }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const labels = events.map(event => event.timestamp);
+        const data = events.map(() => 1);
+
+        const ctx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Case Events',
+                    data: data,
+                    borderColor: '#FF6F61',
+                    backgroundColor: '#FFD166',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#2A9D8F'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Timeline',
+                            color: '#E4E6EB',
+                            font: { size: 14 }
+                        },
+                        ticks: { color: '#B0B3B8' }
+                    },
+                    y: { display: false }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { color: '#E4E6EB' }
+                    },
+                    tooltip: {
+                        backgroundColor: '#2C3E50',
+                        titleColor: '#E4E6EB',
+                        bodyColor: '#B0B3B8'
+                    }
+                }
+            }
+        });
+
+        function exportTimeline() {
+            alert('Timeline export feature coming soon!');
+            // Placeholder for future export functionality
+        }
+    </script>
+    {% endblock %}
+</body>
+</html>

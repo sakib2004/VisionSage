@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% extends "base.html" %}
+    {% block title %}Search Images - VisionSage{% endblock %}
+</head>
+<body>
+    {% block content %}
+    <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="mt-8 text-3xl font-bold text-[#FFD166]"><i class="fas fa-robot icon-ai"></i> Search Images</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="{{ category }} neumorphic">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <div class="flex justify-between items-center mb-6">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <button class="btn btn-info" onclick="clearSearch()">
+                <i class="fas fa-eraser"></i> Clear Search
+            </button>
+        </div>
+        <form method="POST" class="neumorphic p-6 mb-6">
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="input-group">
+                    <label for="keyword" class="block font-semibold text-[#E4E6EB]"><i class="fas fa-hand-holding-heart icon-ease"></i> Keyword</label>
+                    <input type="text" name="keyword" id="keyword" class="w-full p-3 rounded-lg" value="{{ keyword or '' }}" placeholder="Search description, objects...">
+                </div>
+                <div class="input-group">
+                    <label for="date_from" class="block font-semibold text-[#E4E6EB]"><i class="fas fa-calendar-alt"></i> From Date</label>
+                    <input type="date" name="date_from" id="date_from" class="w-full p-3 rounded-lg" value="{{ date_from or '' }}">
+                </div>
+                <div class="input-group">
+                    <label for="date_to" class="block font-semibold text-[#E4E6EB]"><i class="fas fa-calendar-alt"></i> To Date</label>
+                    <input type="date" name="date_to" id="date_to" class="w-full p-3 rounded-lg" value="{{ date_to or '' }}">
+                </div>
+            </div>
+            <div class="mt-6">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+        {% if images %}
+            <div class="results-table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-id-badge"></i> ID</th>
+                            <th><i class="fas fa-image"></i> Image</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-exclamation-triangle"></i> Harmful Objects</th>
+                            <th><i class="fas fa-object-group"></i> Detected Objects</th>
+                            <th><i class="fas fa-folder"></i> Case ID</th>
+                            <th><i class="fas fa-clock"></i> Timestamp</th>
+                            <th><i class="fas fa-cog"></i> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for image in images %}
+                            <tr class="result-row">
+                                <td>{{ image.id }}</td>
+                                <td><img src="{{ url_for('uploaded_file', filename=image.file_path | basename) }}" alt="Image" class="result-image"></td>
+                                <td class="truncate">{{ image.description or 'N/A' }}</td>
+                                <td class="truncate">{{ image.harmful_objects or 'N/A' }}</td>
+                                <td class="truncate">{{ image.detected_objects or 'N/A' }}</td>
+                                <td>{{ image.case_id or 'N/A' }}</td>
+                                <td>{{ image.timestamp }}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteImage({{ image.id }})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-[#B0B3B8]">No images found.</p>
+        {% endif %}
+    </div>
+    <script>
+        function clearSearch() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('date_from').value = '';
+            document.getElementById('date_to').value = '';
+        }
+
+        
+    </script>
+    {% endblock %}
+</body>
+</html>
